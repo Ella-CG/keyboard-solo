@@ -8,6 +8,7 @@ const words = ["apple", "keyboard", "language", "table", "world", "mistake", "un
 let index = 0;
 let errorsCount = 0;
 let countCorrect = 0;
+let currentMistakes = 0;
 let minutes = 0;
 let seconds = 0;
 let timerId;
@@ -49,51 +50,54 @@ function checkPress(event) {
 
     } else {
         spanElements[index].classList.add("w");
-        errorsCount++;
-        wordMistakes.textContent = errorsCount;
-        wrongCount.textContent = errorsCount;
+        currentMistakes++;
+        wordMistakes.textContent = currentMistakes;
     };
 
     if (index === spanElements.length) {
-        index = 0;
-        addWord();
-        countCorrect++;
-        wordMistakes.textContent = 0;
+        if (currentMistakes > 0) {
+            errorsCount++;
+        } else {
+            countCorrect++;
+        }
+        wrongCount.textContent = errorsCount;
         correctCount.textContent = countCorrect;
+        setTimeout(nextWord, 0);
     };
-
-    showResult();
-
-
 }
 
-function showResult() {
+function resetGame() {
+    clearInterval(timerId);
+    errorsCount = 0;
+    countCorrect = 0;
+    wordMistakes.textContent = 0;
+    correctCount.textContent = 0;
+    wrongCount.textContent = 0;
+    timer.textContent = `${addZero(minutes)}:${addZero(seconds)}`;
+}
+
+function checkEndGame() {
     if (countCorrect === 5) {
-        clearInterval(timerId);
         alert(`Победа! Ваше время: ${timer.textContent}`);
-        addWord();
-        errorsCount = 0;
-        countCorrect = 0;
-        wordMistakes.textContent = 0;
-        correctCount.textContent = 0;
-        wrongCount.textContent = 0;
-        timer.textContent = `${addZero(minutes)}:${addZero(seconds)}`;
+        resetGame();
 
     }
     if (errorsCount === 5) {
-        clearInterval(timerId);
+
         alert("Вы проиграли. Попробуйте еще раз.");
-        addWord();
-        errorsCount = 0;
-        countCorrect = 0;
-        wordMistakes.textContent = 0;
-        correctCount.textContent = 0;
-        wrongCount.textContent = 0;
-        index = 0;
-        timer.textContent = `${addZero(minutes)}:${addZero(seconds)}`;
+        resetGame();
 
     }
 }
+
+function nextWord() {
+    checkEndGame();
+    addWord();
+    index = 0;
+    currentMistakes = 0
+    wordMistakes.textContent = 0;
+}
+
 document.addEventListener('keydown', checkPress);
 
 function startTimer() {
@@ -108,7 +112,3 @@ function startTimer() {
 
 
 }
-
-// document.addEventListener("click", () => {
-//     timerId = setInterval(startTimer, 1000);
-// })
